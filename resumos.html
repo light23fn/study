@@ -493,22 +493,36 @@ function closeEdit(){
 }
 
 async function saveEdit(){
- let titulo = document.getElementById("editTitle").value;
- let conteudo = document.getElementById("editContent").value;
+ try {
 
- let res = await fetch('/edit/'+editId,{
-   method:'POST',
-   headers:{'Content-Type':'application/json'},
-   body:JSON.stringify({titulo,conteudo})
- });
+   let titulo = document.getElementById("editTitle").value;
+   let conteudo = document.getElementById("editContent").value;
 
- let data = await res.json();
+   // 🔥 IR BUSCAR MATÉRIA ATUAL
+   let r = resumosData.find(x => x.id == editId);
 
- if(data.status){
-   closeEdit();
-   load();
- } else {
-   alert(data.error);
+   let res = await fetch('/edit/'+editId,{
+     method:'POST',
+     headers:{'Content-Type':'application/json'},
+     body: JSON.stringify({
+       titulo,
+       conteudo,
+       materia: r.materia // 👈 ISTO FALTAVA
+     })
+   });
+
+   let data = await res.json();
+
+   if(data.status){
+     closeEdit();
+     load();
+   } else {
+     alert(data.error);
+   }
+
+ } catch(e){
+   console.error(e);
+   alert("Erro ao guardar!");
  }
 }
 
