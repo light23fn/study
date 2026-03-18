@@ -113,7 +113,7 @@ async function login(){
 
    if(data.status){
      showToast("Login com sucesso!", "success");
-     setTimeout(()=> window.location="index.html", 1000);
+     setTimeout(()=> window.location="dash.html", 1000);
    } else {
      showToast(data.error || "Erro login", "error");
    }

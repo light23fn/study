@@ -281,6 +281,10 @@ def edit_comment(id):
 def home():
     return send_from_directory(".", "index.html")
 
+@app.route("/dashboard")
+def dashboard():
+    return send_from_directory(".", "dash.html")
+
 # STATIC
 @app.route("/<path:path>")
 def static_files(path):
