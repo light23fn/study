@@ -277,6 +277,10 @@ def edit_comment(id):
 
     return jsonify({"status":"ok"})
 
+@app.route("/")
+def home():
+    return send_from_directory(".", "index.html")
+
 # STATIC
 @app.route("/<path:path>")
 def static_files(path):
@@ -287,5 +291,4 @@ import os
 
 if __name__ == "__main__":
     init_db()
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000)))
