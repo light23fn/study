@@ -1,0 +1,623 @@
+<html>
+<head>
+<meta charset="UTF-8">
+
+<style>
+body {
+  font-family: Arial;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  margin: 0;
+}
+
+header {
+  background: rgba(0,0,0,0.2);
+  color: white;
+  padding: 20px;
+  text-align: center;
+}
+
+nav {
+  background: rgba(0,0,0,0.3);
+  padding: 10px;
+  text-align: center;
+}
+
+nav a {
+  color: white;
+  margin: 0 15px;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.container {
+  max-width: 800px;
+  margin: 20px auto;
+}
+
+.search {
+  width: 90%;
+  margin: 10px auto;
+  display: block;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+}
+
+/* cards */
+.card {
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(10px);
+  padding: 20px;
+  margin: 15px;
+  border-radius: 15px;
+  color: white;
+  position: relative;
+}
+
+/* botões */
+.actions {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+.actions button {
+  margin-left: 5px;
+  border: none;
+  padding: 5px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* favoritos */
+.fav-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: gold;
+  padding: 15px;
+  border-radius: 50%;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+/* popup */
+.popup {
+  position: fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background: rgba(0,0,0,0.6);
+  display:none;
+  justify-content:center;
+  align-items:center;
+}
+
+.popup-content {
+  background:white;
+  padding:20px;
+  border-radius:15px;
+  width:90%;
+  max-width:500px;
+}
+
+.popup-content {
+  background: white;
+  padding: 20px;
+  border-radius: 20px;
+  width: 90%;
+  max-width: 500px;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {transform: scale(0.9); opacity:0;}
+  to {transform: scale(1); opacity:1;}
+}
+
+.popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.close {
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.popup-body {
+  margin: 15px 0;
+  line-height: 1.6;
+  color: #333;
+}
+
+.popup-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.popup-actions button {
+  background: #ff4757;
+  border: none;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.comments-section {
+  max-height: 150px;
+  overflow-y: auto;
+  margin-top: 10px;
+}
+
+.comment-box {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.comment-box input {
+  flex: 1;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+}
+
+.comment-box button {
+  background: #667eea;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+#materiaFiltro {
+  width: 90%;
+  margin: 5px auto;
+  display: block;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+}
+
+.popup-content input,
+.popup-content textarea {
+  width: 100%;
+  padding: 10px;
+  margin: 8px 0;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+}
+
+.popup-content textarea {
+  height: 100px;
+  resize: none;
+}
+
+.popup-content button {
+  width: 100%;
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+}
+
+.popup-content button:first-of-type {
+  background: #667eea;
+  color: white;
+}
+
+.popup-content button:last-of-type {
+  background: #ddd;
+}
+
+#confirmPopup .popup-content {
+  text-align: center;
+}
+
+#confirmPopup button {
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+  width: 100%;
+}
+
+#confirmPopup button:first-of-type {
+  background: #ff4757;
+  color: white;
+}
+
+#confirmPopup button:last-of-type {
+  background: #ddd;
+}
+
+.comment-box {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+/* ocupa quase tudo */
+.comment-box textarea {
+  flex: 1;
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+  resize: none;
+  height: 60px;
+}
+
+/* botão mais pequeno */
+.comment-box button {
+  width: 90px;
+  flex-shrink: 0;
+}
+</style>
+
+<script>
+let resumosData = [];
+let favoritos = JSON.parse(localStorage.getItem("fav")) || [];
+let mostrarFav = false;
+let currentId = 0;
+let currentUser = "";
+
+// LOAD
+async function load(){
+ let res = await fetch('/resumos');
+ let data = await res.json();
+
+ resumosData = data.resumos;
+ currentUser = data.user;
+
+ render();
+}
+
+// RENDER (CORRIGIDO)
+function render(){
+ let div = document.getElementById("list");
+ div.innerHTML = "";
+
+ let search = document.getElementById("search").value.toLowerCase();
+ let filtroMateria = document.getElementById("materiaFiltro").value;
+
+ resumosData.forEach(r => {
+
+   if(mostrarFav && !favoritos.includes(r.id)) return;
+   if(!r.titulo.toLowerCase().includes(search)) return;
+   if(filtroMateria && r.materia !== filtroMateria) return;
+
+   let preview = r.conteudo.substring(0,80) + "...";
+   let isFav = favoritos.includes(r.id);
+   let canEdit = currentUser === r.user || currentUser === "admin";
+
+   div.innerHTML += `
+   <div class="card">
+
+     <div class="actions">
+
+       <!-- ⭐ FAVORITO -->
+       <button onclick="toggleFav(${r.id})">
+         ${isFav ? "⭐" : "☆"}
+       </button>
+
+       <!-- ❤️ LIKE -->
+       <button onclick="like(${r.id})">❤️</button>
+       <span id="likes-${r.id}">0</span>
+
+       <!-- 👑 ADMIN / DONO -->
+       ${canEdit ? `
+         <button onclick="editResumo(${r.id})">✏️</button>
+         <button onclick="deleteResumo(${r.id})">🗑</button>
+       ` : ""}
+
+     </div>
+
+     <!-- 📖 CONTEÚDO -->
+     <div onclick="openPopup(${r.id})">
+       <div onclick="openPopup(${r.id})">
+        <p style="font-size:12px;opacity:0.8;">📘 ${r.materia || "Sem matéria"}</p>
+        <h3>${r.titulo}</h3>
+        <p>${preview}</p>
+      </div>
+     </div>
+
+   </div>
+   `;
+
+   // carregar likes
+   loadLikes(r.id);
+ });
+}
+
+// FAVORITOS
+function toggleFav(id){
+ if(favoritos.includes(id)){
+   favoritos = favoritos.filter(f=>f!==id);
+ } else {
+   favoritos.push(id);
+ }
+ localStorage.setItem("fav", JSON.stringify(favoritos));
+ render();
+}
+
+let confirmAction = null;
+
+function showConfirm(msg, action){
+ document.getElementById("confirmText").innerText = msg;
+ confirmAction = action;
+ document.getElementById("confirmPopup").style.display = "flex";
+}
+
+function closeConfirm(){
+ document.getElementById("confirmPopup").style.display = "none";
+}
+
+function confirmYes(){
+ if(confirmAction) confirmAction();
+ closeConfirm();
+}
+
+function deleteComment(id){
+ showConfirm("Apagar comentário?", async ()=>{
+
+   await fetch('/delete_comment/'+id, {method:'DELETE'});
+   loadComments(currentId);
+
+ });
+
+}
+
+function editComment(id, old){
+ let novo = prompt("Editar comentário:", old);
+ if(!novo) return;
+
+ fetch('/edit_comment/'+id,{
+   method:'POST',
+   headers:{'Content-Type':'application/json'},
+   body:JSON.stringify({texto:novo})
+ }).then(()=> loadComments(currentId));
+}
+
+// DELETE
+function deleteResumo(id){
+ showConfirm("Apagar resumo?", async () => {
+
+   let res = await fetch('/delete/'+id, { method:'DELETE' });
+   let data = await res.json();
+
+   if(data.status){
+     alert("Apagado 🗑");
+     load();
+   } else {
+     alert(data.error);
+   }
+
+ });
+}
+
+// FAVORITOS VIEW
+function toggleViewFav(){
+ mostrarFav = !mostrarFav;
+ render();
+}
+
+let editId = null;
+
+function editResumo(id){
+ let r = resumosData.find(x=>x.id==id);
+
+ editId = id;
+
+ document.getElementById("editTitle").value = r.titulo;
+ document.getElementById("editContent").value = r.conteudo;
+
+ document.getElementById("editPopup").style.display = "flex";
+}
+
+function closeEdit(){
+ document.getElementById("editPopup").style.display = "none";
+}
+
+async function saveEdit(){
+ let titulo = document.getElementById("editTitle").value;
+ let conteudo = document.getElementById("editContent").value;
+
+ let res = await fetch('/edit/'+editId,{
+   method:'POST',
+   headers:{'Content-Type':'application/json'},
+   body:JSON.stringify({titulo,conteudo})
+ });
+
+ let data = await res.json();
+
+ if(data.status){
+   closeEdit();
+   load();
+ } else {
+   alert(data.error);
+ }
+}
+
+// LIKES
+async function like(id){
+ await fetch('/like',{
+   method:'POST',
+   headers:{'Content-Type':'application/json'},
+   body:JSON.stringify({id})
+ });
+ loadLikes(id);
+}
+
+async function loadLikes(id){
+ let res = await fetch('/likes/'+id);
+ let data = await res.json();
+
+ let el = document.getElementById("likes-"+id);
+ if(el) el.innerText = data.likes;
+}
+
+// POPUP
+async function openPopup(id){
+ currentId = id;
+
+ let r = resumosData.find(x=>x.id==id);
+
+ document.getElementById("popupTitle").innerText = r.titulo;
+ document.getElementById("popupText").innerText = r.conteudo;
+
+ let res = await fetch('/likes/'+id);
+ let data = await res.json();
+ document.getElementById("popupLikes").innerText = "❤️ " + data.likes;
+
+ loadComments(id);
+
+ document.getElementById("popup").style.display = "flex";
+}
+
+function closePopup(){
+ document.getElementById("popup").style.display = "none";
+}
+
+// COMMENTS
+async function loadComments(id){
+ let res = await fetch('/comments/'+id);
+ let data = await res.json();
+
+ let meRes = await fetch('/me');
+ let me = await meRes.json();
+
+ let div = document.getElementById("comments");
+ div.innerHTML = "";
+
+ data.forEach(c=>{
+
+   let isAdmin = me.user === "admin";
+
+   div.innerHTML += `
+   <div style="margin-bottom:8px;">
+     <b>${c.user}</b>: ${c.texto}
+
+     ${isAdmin ? `
+       <button onclick="deleteComment(${c.id})">🗑</button>
+       <button onclick="editComment(${c.id}, '${c.texto.replace(/'/g,"\\'")}')">✏️</button>
+     ` : ""}
+   </div>`;
+ });
+}
+
+async function sendComment(){
+ let txt = document.getElementById("commentInput").value;
+
+ if(!txt) return;
+
+ await fetch('/comment',{
+   method:'POST',
+   headers:{'Content-Type':'application/json'},
+   body:JSON.stringify({
+     id: currentId,
+     texto: txt
+   })
+ });
+
+ document.getElementById("commentInput").value = "";
+ loadComments(currentId);
+}
+
+let textarea = document.getElementById("commentInput");
+
+textarea.addEventListener("input", () => {
+  textarea.style.height = "auto";
+  textarea.style.height = textarea.scrollHeight + "px";
+});
+</script>
+</head>
+
+<body onload="load()">
+
+<header>📚 Resumos</header>
+
+<nav>
+<a href="index.html">Início</a>
+<a href="resumos.html">Resumos</a>
+<a href="add.html">Adicionar</a>
+</nav>
+
+<input id="search" class="search" placeholder="🔍 Procurar..." oninput="render()">
+
+<select id="materiaFiltro" onchange="render()" class="search">
+  <option value="">📚 Todas as matérias</option>
+  <option>Matemática</option>
+  <option>FQ</option>
+  <option>Português</option>
+  <option>História</option>
+  <option>Inglês</option>
+</select>
+
+<div class="container" id="list"></div>
+
+<div class="fav-btn" onclick="toggleViewFav()">⭐</div>
+
+<div id="popup" class="popup" onclick="closePopup()">
+  <div class="popup-content" onclick="event.stopPropagation()">
+
+    <div class="popup-header">
+      <h2 id="popupTitle"></h2>
+      <span class="close" onclick="closePopup()">✖</span>
+    </div>
+
+    <div class="popup-body">
+      <p id="popupText"></p>
+    </div>
+
+    <div class="popup-actions">
+      <button onclick="like(currentId)">❤️ Gostar</button>
+      <span id="popupLikes"></span>
+    </div>
+
+    <hr>
+
+    <div class="comments-section">
+      <h4>💬 Comentários</h4>
+      <div id="comments"></div>
+    </div>
+
+    <div class="comment-box">
+      <textarea id="commentInput" placeholder="Escreve um comentário..."></textarea>
+      <button onclick="sendComment()">Enviar</button>
+    </div>
+
+  </div>
+</div>
+
+<div id="confirmPopup" class="popup">
+  <div class="popup-content" onclick="event.stopPropagation()">
+    <h3 id="confirmText">Tens a certeza?</h3>
+    <button onclick="confirmYes()">Sim</button>
+    <button onclick="closeConfirm()">Cancelar</button>
+  </div>
+</div>
+
+<div id="editPopup" class="popup">
+  <div class="popup-content" onclick="event.stopPropagation()">
+
+    <h3>✏️ Editar</h3>
+
+    <input id="editTitle" placeholder="Título">
+    <textarea id="editContent" placeholder="Conteúdo"></textarea>
+
+    <button onclick="saveEdit()">Guardar</button>
+    <button onclick="closeEdit()">Cancelar</button>
+
+  </div>
+</div>
+
+</body>
+</html>

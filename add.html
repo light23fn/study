@@ -1,0 +1,232 @@
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Adicionar Resumo</title>
+
+<style>
+body {
+  font-family: Arial;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  margin: 0;
+}
+
+header {
+  background: rgba(0,0,0,0.2);
+  color: white;
+  padding: 20px;
+  text-align: center;
+  font-size: 22px;
+}
+
+nav {
+  background: rgba(0,0,0,0.3);
+  padding: 10px;
+  text-align: center;
+}
+
+nav a {
+  color: white;
+  margin: 0 15px;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.container {
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 30px;
+
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(15px);
+
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.2);
+
+  box-shadow: 
+    0 8px 32px rgba(0,0,0,0.2),
+    inset 0 0 10px rgba(255,255,255,0.1);
+}
+
+/* inputs */
+input, textarea, select {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.3);
+
+  background: rgba(255,255,255,0.1);
+  color: white;
+  outline: none;
+}
+
+input, textarea {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important; /* 🔥 chave */
+  opacity: 1 !important;
+  caret-color: #ffffff;
+}
+
+select option {
+  color: black;
+}
+
+textarea {
+  height: 120px;
+  resize: none;
+}
+
+button {
+  width: 100%;
+  margin-top: 20px;
+  padding: 14px;
+  border: none;
+  border-radius: 10px;
+  background: #667eea;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+button:disabled {
+  background: #999;
+}
+
+/* TOAST */
+.toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  padding: 15px 20px;
+  border-radius: 10px;
+  color: white;
+  font-weight: bold;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: 0.4s;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.success { background: #2ecc71; }
+.error { background: #e74c3c; }
+</style>
+
+<script>
+// TOAST
+function showToast(msg, type){
+ let t = document.createElement("div");
+ t.className = "toast " + type;
+ t.innerText = msg;
+
+ document.body.appendChild(t);
+
+ setTimeout(()=> t.classList.add("show"),100);
+
+ setTimeout(()=>{
+   t.classList.remove("show");
+   setTimeout(()=> t.remove(),300);
+ },3000);
+}
+
+// LOGIN CHECK
+async function checkAuth(){
+ try {
+   let res = await fetch('/me');
+   let data = await res.json();
+
+   if(!data.user){
+     showToast("Tens de fazer login!", "error");
+     setTimeout(()=> window.location="login.html", 1500);
+   }
+ } catch(e){
+   showToast("Servidor offline!", "error");
+ }
+}
+
+// SAVE
+async function save(){
+  let titulo = document.getElementById("t").value.trim();
+  let conteudo = document.getElementById("c").value.trim();
+  let materia = document.getElementById("materia").value;
+  let btn = document.getElementById("btn");
+
+  if(!materia){
+    showToast("Seleciona a matéria!", "error");
+    return;
+  }
+
+  if(!titulo || !conteudo){
+    showToast("Preenche todos os campos!", "error");
+    return;
+  }
+
+  btn.disabled = true;
+  btn.innerText = "A guardar...";
+
+  try {
+    let res = await fetch('/add',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({titulo,conteudo,materia})
+    });
+
+    let data = await res.json();
+
+    if(data.status){
+      showToast("Resumo guardado!", "success");
+
+      document.getElementById("t").value = "";
+      document.getElementById("c").value = "";
+      document.getElementById("materia").value = "";
+
+    } else if(data.error){
+      showToast(data.error, "error");
+    }
+
+  } catch(e){
+    showToast("Servidor offline!", "error");
+  }
+
+  btn.disabled = false;
+  btn.innerText = "Guardar";
+}
+</script>
+</head>
+
+<body onload="checkAuth()">
+
+<header>📚 Adicionar Resumo</header>
+
+<nav>
+<a href="index.html">Início</a>
+<a href="resumos.html">Resumos</a>
+<a href="add.html">Adicionar</a>
+</nav>
+
+<div class="container">
+
+  <!-- 📚 MATÉRIA -->
+  <select id="materia">
+    <option value="">Seleciona a matéria</option>
+    <option>Matemática</option>
+    <option>FQ</option>
+    <option>Português</option>
+    <option>História</option>
+    <option>Inglês</option>
+    <option>Outra</option>
+  </select>
+
+  <input id="t" placeholder="Título">
+  <textarea id="c" placeholder="Conteúdo"></textarea>
+
+  <button id="btn" onclick="save()">Guardar</button>
+
+</div>
+
+</body>
+</html>
