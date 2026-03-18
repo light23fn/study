@@ -1,5 +1,6 @@
 <html>
 <head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta charset="UTF-8">
 <title>Adicionar Resumo</title>
 
@@ -114,6 +115,41 @@ button:disabled {
 
 .success { background: #2ecc71; }
 .error { background: #e74c3c; }
+
+/* 📱 SÓ MOBILE (centrado e ajustado) */
+@media (max-width: 600px) {
+
+  body {
+    padding: 10px;
+  }
+
+  .container {
+    margin: 20px auto;   /* menos espaço em cima */
+    padding: 20px;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  header {
+    font-size: 18px;
+    padding: 15px;
+  }
+
+  nav a {
+    display: inline-block;
+    margin: 5px;
+    font-size: 14px;
+  }
+
+  input, textarea, select, button {
+    font-size: 16px; /* evita zoom */
+  }
+
+  textarea {
+    height: 100px;
+  }
+
+}
 </style>
 
 <script>

@@ -1,5 +1,6 @@
 <html>
 <head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta charset="UTF-8">
 
 <style>
@@ -71,6 +72,27 @@ button:disabled {
 
 .success { background: #2ecc71; }
 .error { background: #e74c3c; }
+
+/* 📱 SÓ MOBILE (centrado no meio) */
+@media (max-width: 600px) {
+
+  body {
+    padding: 15px;
+    justify-content: center;
+    align-items: center; /* 🔥 garante centro vertical */
+  }
+
+  .box {
+    width: 100%;
+    max-width: 350px;
+    padding: 20px;
+  }
+
+  input, button {
+    font-size: 16px;
+  }
+
+}
 </style>
 
 <script>

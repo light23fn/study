@@ -1,5 +1,6 @@
 <html>
 <head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta charset="UTF-8">
 
 <style>
@@ -262,6 +263,68 @@ nav a {
 .comment-box button {
   width: 90px;
   flex-shrink: 0;
+}
+
+/* 📱 SÓ MOBILE */
+@media (max-width: 600px) {
+
+  body {
+    padding: 10px;
+  }
+
+  header {
+    padding: 15px;
+    font-size: 18px;
+  }
+
+  nav a {
+    display: inline-block;
+    margin: 5px;
+    font-size: 14px;
+  }
+
+  .container {
+    width: 100%;
+    margin: 10px auto;
+  }
+
+  .card {
+    margin: 10px 5px;
+    padding: 15px;
+  }
+
+  .search {
+    width: 95%;
+    font-size: 16px;
+  }
+
+  #materiaFiltro {
+    width: 95%;
+    font-size: 16px;
+  }
+
+  /* 🔥 popup melhor no mobile */
+  .popup-content {
+    width: 95%;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .popup-body {
+    max-height: 150px;
+    overflow-y: auto;
+  }
+
+  .comments-section {
+    max-height: 180px;
+    overflow-y: auto;
+  }
+
+  .comment-box textarea {
+    font-size: 16px;
+  }
+
 }
 </style>
 
