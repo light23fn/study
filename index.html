@@ -133,7 +133,7 @@ async function login(){
 
    let data = await res.json();
 
-   if(data.status){
+   if(data.status === "ok"){
      showToast("Login com sucesso!", "success");
      setTimeout(()=> window.location="dash.html", 1000);
    } else {
@@ -166,7 +166,7 @@ async function register(){
 
    let data = await res.json();
 
-   if(data.status){
+   if(data.status === "ok"){
      showToast("Conta criada!", "success");
    } else {
      showToast(data.error || "Erro registo", "error");
